@@ -1,7 +1,26 @@
+/**
+ * Recipe Vault Application
+ * 
+ * This JavaFX application provides a user interface to enter recipe information.
+ * Users can:
+ *  - Input recipe metadata (name, category, author, time, servings, theme)
+ *  - Add and remove up to 15 ingredients
+ *  - Add and remove up to 25 cooking instruction steps
+ *  - Enter notes or tips for the recipe
+ *  - Reset the form to clear all inputs
+ *  - Receive validation alerts via pop-up dialogs
+ * 
+ * The application window opens centered horizontally and maximized vertically.
+ * Lists for ingredients and instructions use ObservableLists linked to ListView components.
+ * 
+ * Developed using JavaFX UI components like BorderPane, GridPane, ListView, TextField, and TextArea.
+ */
+
 package application;
 
 import javafx.application.Application;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -14,9 +33,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 
-import java.util.HashMap;
-import java.util.Map;
-
+//Main JavaFX application class for Recipe Vault
 public class Main extends Application {
     // Recipe attributes
     private TextField recipeNameField;
@@ -27,264 +44,261 @@ public class Main extends Application {
     private TextField servingsField;
     private TextField recipeAuthorField;
     private ComboBox<String> themeComboBox;
-    
+
     // Ingredients
     private TextField ingredientField;
-    private TextArea ingredientListArea;
-    private Map<String, String> ingredientsMap = new HashMap<>();
-    
-    // Instructions and Notes
-    private TextArea instructionsArea;
+    private ListView<String> ingredientListView;
+    private ObservableList<String> ingredientsList = FXCollections.observableArrayList();
+
+    // Instructions
+    private TextField instructionField;
+    private ListView<String> instructionListView;
+    private ObservableList<String> instructionsList = FXCollections.observableArrayList();
+
+    // Notes
     private TextArea notesArea;
-    
+
     // Status label
     private Label statusLabel;
 
     @Override
     public void start(Stage primaryStage) {
         primaryStage.setTitle("Recipe Vault");
-        
-        // Main layout
+
         BorderPane mainLayout = new BorderPane();
         mainLayout.setPadding(new Insets(10));
-        
-        // Header
+
         VBox headerBox = createHeader();
         mainLayout.setTop(headerBox);
-        
-        // Center content
-        GridPane gridPane = createContentGrid();
-        mainLayout.setCenter(gridPane);
-        
-        // Bottom buttons
+
+        GridPane contentGrid = createContentGrid();
+        mainLayout.setCenter(contentGrid);
+
         HBox buttonBox = createButtons(primaryStage);
         mainLayout.setBottom(buttonBox);
-        
-        // Set the scene
-        Scene scene = new Scene(mainLayout, 800, 700);
+
+        Scene scene = new Scene(mainLayout, 800, javafx.stage.Screen.getPrimary().getVisualBounds().getHeight());
+        primaryStage.centerOnScreen();
+        primaryStage.setOnShown(e -> primaryStage.setX((javafx.stage.Screen.getPrimary().getVisualBounds().getWidth() - primaryStage.getWidth()) / 2));
+        primaryStage.setY(0);
         primaryStage.setScene(scene);
+        primaryStage.setHeight(javafx.stage.Screen.getPrimary().getVisualBounds().getHeight());
         primaryStage.show();
     }
 
+    // Creates the top header section with title and slogan
     private VBox createHeader() {
         VBox headerBox = new VBox(10);
         headerBox.setAlignment(Pos.CENTER);
         headerBox.setPadding(new Insets(0, 0, 20, 0));
-        
+
         Label titleLabel = new Label("Recipe Vault");
         titleLabel.setFont(Font.font("Georgia", FontWeight.BOLD, 24));
-        
+
         Label sloganLabel = new Label("Preserve the past, cook for the future!");
         sloganLabel.setFont(Font.font("Georgia", FontWeight.NORMAL, 14));
-        
+
         headerBox.getChildren().addAll(titleLabel, sloganLabel);
         return headerBox;
     }
 
+    // Creates the main content area including form fields, ingredient and instruction lists
     private GridPane createContentGrid() {
         GridPane grid = new GridPane();
         grid.setHgap(10);
         grid.setVgap(10);
         grid.setPadding(new Insets(10));
-        
-        // Recipe basic info section
+
         int row = 0;
-        
-        // Recipe Name
+
         grid.add(new Label("Recipe Name:"), 0, row);
         recipeNameField = new TextField();
         grid.add(recipeNameField, 1, row);
-        
-        // Recipe Category
-		row++;
-		grid.add(new Label("Category/Cuisine:"), 0, row);
-		recipeCategoryField = new TextField();
-		grid.add(recipeCategoryField, 1, row);
 
-        // Recipe Author
+        row++;
+        grid.add(new Label("Category/Cuisine:"), 0, row);
+        recipeCategoryField = new TextField();
+        grid.add(recipeCategoryField, 1, row);
+
         row++;
         grid.add(new Label("Recipe Author:"), 0, row);
         recipeAuthorField = new TextField();
         grid.add(recipeAuthorField, 1, row);
-        
-        // Prep Time
+
         row++;
         grid.add(new Label("Prep Time:"), 0, row);
         prepTimeField = new TextField();
         grid.add(prepTimeField, 1, row);
-        
-        // Cook Time
+
         row++;
         grid.add(new Label("Cook Time:"), 0, row);
         cookTimeField = new TextField();
         grid.add(cookTimeField, 1, row);
-        
-        // Total Time
+
         row++;
         grid.add(new Label("Total Time:"), 0, row);
         totalTimeField = new TextField();
         grid.add(totalTimeField, 1, row);
-        
-        // Servings
+
         row++;
         grid.add(new Label("Servings:"), 0, row);
         servingsField = new TextField();
         grid.add(servingsField, 1, row);
-        
-        // Theme
+
         row++;
         grid.add(new Label("Theme:"), 0, row);
         themeComboBox = new ComboBox<>(FXCollections.observableArrayList(
-                "Christmas", "Halloween", "Valentines Day", "Easter" 
-                
+                "Spring", "Summer", "Fall", "Winter"
         ));
         themeComboBox.setPromptText("Select theme");
         themeComboBox.setEditable(true);
         grid.add(themeComboBox, 1, row);
-        
-        // Ingredients section
+
         row++;
-        Separator separator = new Separator();
-        grid.add(separator, 0, row, 2, 1);
-        
-        // Ingredients heading
+        grid.add(new Separator(), 0, row, 2, 1);
+
         row++;
-        Label ingredientsLabel = new Label("Ingredients");
-        ingredientsLabel.setFont(Font.font("Arial", FontWeight.BOLD, 14));
-        grid.add(ingredientsLabel, 0, row, 2, 1);
-        
-        // Ingredient input
+        grid.add(new Label("Ingredients"), 0, row, 2, 1);
+
         row++;
         grid.add(new Label("Add Ingredient:"), 0, row);
-        
-        HBox ingredientInputBox = new HBox(10);
         ingredientField = new TextField();
-        ingredientField.textProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue.length() > 20) {
-                ingredientField.setText(oldValue);
-            }
+        ingredientField.textProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal.length() > 20) ingredientField.setText(oldVal);
         });
-        
         Button addIngredientButton = new Button("Add");
         addIngredientButton.setOnAction(e -> addIngredient());
+        HBox ingredientBox = new HBox(10, ingredientField, addIngredientButton);
+        grid.add(ingredientBox, 1, row);
+
         
-        ingredientInputBox.getChildren().addAll(ingredientField, addIngredientButton);
-        grid.add(ingredientInputBox, 1, row);
-        
-        // Status label for ingredient action feedback
-        row++;
-        statusLabel = new Label("");
-        grid.add(statusLabel, 1, row);
-        
-        // Ingredient list
+
         row++;
         grid.add(new Label("Ingredient List:"), 0, row);
-        ingredientListArea = new TextArea();
-        ingredientListArea.setEditable(false);
-        ingredientListArea.setPrefHeight(100);
-        grid.add(ingredientListArea, 1, row);
-        
-        // Remove ingredient button
+        ingredientListView = new ListView<>(ingredientsList);
+        ingredientListView.setPrefHeight(400);
+        grid.add(ingredientListView, 1, row);
+
         row++;
         Button removeIngredientButton = new Button("Remove Selected Ingredient");
         removeIngredientButton.setOnAction(e -> removeIngredient());
         grid.add(removeIngredientButton, 1, row);
-        
-        // Instructions section
+
         row++;
-        Separator instructionsSeparator = new Separator();
-        grid.add(instructionsSeparator, 0, row, 2, 1);
-        
-        // Instructions heading
+        grid.add(new Separator(), 0, row, 2, 1);
+
         row++;
-        Label instructionsLabel = new Label("Cooking Instructions");
-        instructionsLabel.setFont(Font.font("Arial", FontWeight.BOLD, 14));
-        grid.add(instructionsLabel, 0, row, 2, 1);
-        
-        // Instructions textarea
+        grid.add(new Label("Cooking Instructions"), 0, row, 2, 1);
+
         row++;
-        grid.add(new Label("Steps:"), 0, row);
-        instructionsArea = new TextArea();
-        instructionsArea.setPrefHeight(120);
-        grid.add(instructionsArea, 1, row);
-        
-        // Notes section
+        grid.add(new Label("Add Instruction:"), 0, row);
+        instructionField = new TextField();
+        instructionField.textProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal.length() > 100) instructionField.setText(oldVal);
+        });
+        Button addInstructionButton = new Button("Add");
+        addInstructionButton.setOnAction(e -> {
+            addInstruction();
+            GridPane.setRowIndex(statusLabel, GridPane.getRowIndex(instructionListView) - 1);
+        });
+        HBox instructionBox = new HBox(10, instructionField, addInstructionButton);
+        grid.add(instructionBox, 1, row);
+
         row++;
-        Separator notesSeparator = new Separator();
-        grid.add(notesSeparator, 0, row, 2, 1);
+                grid.add(new Label("Instruction List:"), 0, row);
+        instructionListView = new ListView<>(instructionsList);
+        instructionListView.setPrefHeight(400);
         
-        // Notes heading
+        grid.add(instructionListView, 1, row);
+
         row++;
-        Label notesLabel = new Label("Notes/Tips");
-        notesLabel.setFont(Font.font("Arial", FontWeight.BOLD, 14));
-        grid.add(notesLabel, 0, row, 2, 1);
-        
-        // Notes textarea
+        Button removeInstructionButton = new Button("Remove Selected Instruction");
+        removeInstructionButton.setOnAction(e -> removeInstruction());
+        grid.add(removeInstructionButton, 1, row);
+
         row++;
-        grid.add(new Label("Notes:"), 0, row);
+        grid.add(new Separator(), 0, row, 2, 1);
+
+        row++;
+        grid.add(new Label("Notes/Tips"), 0, row, 2, 1);
+
+        row++;
         notesArea = new TextArea();
-        notesArea.setPrefHeight(80);
+        notesArea.setPrefHeight(400);
         grid.add(notesArea, 1, row);
-        
+
         return grid;
     }
 
-    private HBox createButtons(Stage primaryStage) {
-        HBox buttonBox = new HBox(10);
-        buttonBox.setAlignment(Pos.CENTER_RIGHT);
-        buttonBox.setPadding(new Insets(20, 0, 0, 0));
-        
-        Button saveButton = new Button("Save");
-        saveButton.setOnAction(e -> showMessageDialog("Save button clicked!"));
-        
-        Button closeButton = new Button("Close");
-        closeButton.setOnAction(e -> primaryStage.close());
-        
-        buttonBox.getChildren().addAll(saveButton, closeButton);
-        return buttonBox;
+    // Creates the bottom row of buttons (Save, Reset, Close)
+    private HBox createButtons(Stage stage) {
+        HBox box = new HBox(10);
+        box.setAlignment(Pos.CENTER_RIGHT);
+        box.setPadding(new Insets(20, 0, 0, 0));
+        Button save = new Button("Save");
+        Button reset = new Button("Reset");
+        reset.setOnAction(e -> resetForm());
+        Button close = new Button("Close");
+        close.setOnAction(e -> stage.close());
+        box.getChildren().addAll(save, reset, close);
+        return box;
     }
-    
+
+    // Adds an ingredient to the list if valid and under limit
     private void addIngredient() {
         String ingredient = ingredientField.getText().trim();
-        if (!ingredient.isEmpty()) {
-            // Add to data structure (Map)
-            ingredientsMap.put(ingredient, ingredient);
-            
-            // Update the TextArea
-            updateIngredientList();
-            
-            // Update status label
-            statusLabel.setText("Ingredient '" + ingredient + "' added to the list");
-            
-            // Clear the input field
+        if (ingredientsList.size() >= 15) {
+            showMessageDialog("You can only add up to 15 ingredients.");
+            return;
+        }
+        if (!ingredient.isEmpty() && !ingredientsList.contains(ingredient)) {
+            ingredientsList.add(ingredient);
             ingredientField.clear();
-        }
-    }
-    
-    private void removeIngredient() {
-        String selectedText = ingredientListArea.getSelectedText().trim();
-        if (!selectedText.isEmpty() && ingredientsMap.containsKey(selectedText)) {
-            // Remove from data structure
-            ingredientsMap.remove(selectedText);
-            
-            // Update the TextArea
-            updateIngredientList();
-            
-            // Update status label
-            statusLabel.setText("Ingredient '" + selectedText + "' removed from the list");
         } else {
-            statusLabel.setText("Please select an ingredient to remove");
+            showMessageDialog("Ingredient already in the list or empty");
+        }
+            statusLabel.setText("Ingredient already in the list or empty");
+        }
+
+    // Removes the selected ingredient from the list
+    private void removeIngredient() {
+        String selected = ingredientListView.getSelectionModel().getSelectedItem();
+        if (selected != null) {
+            ingredientsList.remove(selected);
+            showMessageDialog("Ingredient '" + selected + "' removed");
+        } else {
+            showMessageDialog("Select an ingredient to remove");
         }
     }
-    
-    private void updateIngredientList() {
-        StringBuilder sb = new StringBuilder();
-        for (String ingredient : ingredientsMap.keySet()) {
-            sb.append(ingredient).append("\n");
+
+    // Adds an instruction step to the list if valid and under limit
+    private void addInstruction() {
+        String step = instructionField.getText().trim();
+        if (instructionsList.size() >= 25) {
+            showMessageDialog("You can only add up to 25 instruction steps.");
+            return;
         }
-        ingredientListArea.setText(sb.toString());
+        if (!step.isEmpty() && !instructionsList.contains(step)) {
+            instructionsList.add(step);
+            instructionField.clear();
+        } else {
+            showMessageDialog("Instruction already in the list or empty");
+        }
+            statusLabel.setText("Instruction already in the list or empty");
+        }
+
+    // Removes the selected instruction from the list
+    private void removeInstruction() {
+        String selected = instructionListView.getSelectionModel().getSelectedItem();
+        if (selected != null) {
+            instructionsList.remove(selected);
+            showMessageDialog("Instruction removed");
+        } else {
+            showMessageDialog("Select an instruction to remove");
+        }
     }
-    
+
+    // Shows a popup dialog with a given message
     private void showMessageDialog(String message) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Recipe Vault");
@@ -295,5 +309,26 @@ public class Main extends Application {
 
     public static void main(String[] args) {
         launch(args);
+    }
+
+    // Resets all input fields and clears ingredient and instruction lists
+    private void resetForm() {
+        recipeNameField.clear();
+        recipeCategoryField.clear();
+        prepTimeField.clear();
+        cookTimeField.clear();
+        totalTimeField.clear();
+        servingsField.clear();
+        recipeAuthorField.clear();
+        themeComboBox.getEditor().clear();
+        themeComboBox.setValue(null);
+
+        ingredientField.clear();
+        ingredientsList.clear();
+
+        instructionField.clear();
+        instructionsList.clear();
+
+        notesArea.clear();
     }
 }
