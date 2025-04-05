@@ -31,6 +31,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
+import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
 
 //Main JavaFX application class for Recipe Vault
