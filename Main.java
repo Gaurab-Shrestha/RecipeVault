@@ -329,6 +329,22 @@ public class Main extends Application {
         alert.showAndWait();
     }
 
+    private void saveRecipeToPDF() {
+        String name = recipeNameField.getText();
+        String category = recipeCategoryField.getText();
+        String author = recipeAuthorField.getText();
+        String prepTime = prepTimeField.getText();
+        String cookTime = cookTimeField.getText();
+        String totalTime = totalTimeField.getText();
+        String servings = servingsField.getText();
+        String theme = themeComboBox.getValue();
+        List<String> ingredients = new ArrayList<>(ingredientsList);
+        List<String> instructions = new ArrayList<>(instructionsList);
+        String notes = notesArea.getText();
+
+        RecipePDFWriter.saveRecipeToPDF(name, category, author, prepTime, cookTime, totalTime, servings, theme, ingredients, instructions, notes);
+    }
+
     public static void main(String[] args) {
         launch(args);
     }
