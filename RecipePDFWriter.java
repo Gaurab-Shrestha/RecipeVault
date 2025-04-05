@@ -10,6 +10,7 @@ import org.apache.pdfbox.pdmodel.interactive.form.PDField;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 
 /**
@@ -60,57 +61,84 @@ public class RecipePDFWriter {
             return;
         }
 
-        // File chooser dialog to select the template PDF
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PDF Files", "*.pdf"));
-        fileChooser.setTitle("Select Recipe Template");
-        File templateFile = fileChooser.showOpenDialog(new Stage());
-
-        if (templateFile != null) {
-            try (PDDocument document = PDDocument.load(templateFile)) {
-                PDAcroForm acroForm = document.getDocumentCatalog().getAcroForm();
-
-                if (acroForm != null) {
-                    // Fill in the form fields
-                    fillFormField(acroForm, "Recipe", recipeName);
-                    fillFormField(acroForm, "Prep Time", prepTime);
-                    fillFormField(acroForm, "Cook Time", cookTime);
-                    fillFormField(acroForm, "Serves", servings);
-                    fillFormField(acroForm, "Meal Type", category);
-
-                    // Fill in ingredients
-                    for (int i = 0; i < ingredients.size(); i++) {
-                        String ingredientField = "Ingredient" + (i + 1);
-                        fillFormField(acroForm, ingredientField, ingredients.get(i));
-                    }
-
-                    // Fill in directions (steps)
-                    for (int i = 0; i < instructions.size(); i++) {
-                        String directionField = "Direction" + (i + 1);
-                        fillFormField(acroForm, directionField, instructions.get(i));
-                    }
-
-                    // Fill in notes
-                    fillFormField(acroForm, "Notes", notes);
-
-                    // Save the filled-out PDF
-                    FileChooser saveFileChooser = new FileChooser();
-                    saveFileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PDF Files", "*.pdf"));
-                    saveFileChooser.setTitle("Save Recipe");
-                    saveFileChooser.setInitialFileName(recipeName + "_filled.pdf");
-                    File saveFile = saveFileChooser.showSaveDialog(new Stage());
-
-                    if (saveFile != null) {
-                        document.save(saveFile);
-                        showInfoDialog("Recipe saved successfully!");
-                    }
-                } else {
-                    showErrorDialog("No form fields found in the PDF template.");
-                }
-            } catch (IOException e) {
-                showErrorDialog("Error loading or saving the PDF template.");
-            }
+        // Select template file based on theme
+        String templateFileName;
+        switch (theme.toLowerCase()) {
+            case "summer":
+                templateFileName = "Summer_Template.pdf";
+                break;
+            case "winter":
+                templateFileName = "Winter_Template.pdf";
+                break;
+            case "spring":
+                templateFileName = "Spring_Template.pdf";
+                break;
+            case "fall":
+                templateFileName = "Fall_Template.pdf";
+                break;
+            default:
+                showErrorDialog("Invalid theme. Please choose from Summer, Winter, Spring, or Fall.");
+                return;
         }
+
+        InputStream inputStream = RecipePDFWriter.class.getResourceAsStream("/template/" + templateFileName);
+
+        File templateFile = new File("G:/UMGC/Computer Science Capstone/intellij(java)/RecipeVault/src/main/resources/template/" + templateFileName);
+        if (!templateFile.exists()) {
+            showErrorDialog("Template file not found: " + templateFileName);
+            return;
+        }
+
+        if (inputStream == null) {
+            showErrorDialog("Template file not found in resources: " + templateFileName);
+            return;
+        }
+
+
+        try (PDDocument document = PDDocument.load(inputStream)) {
+            PDAcroForm acroForm = document.getDocumentCatalog().getAcroForm();
+
+            if (acroForm != null) {
+                // Fill in the form fields
+                fillFormField(acroForm, "Recipe", recipeName);
+                fillFormField(acroForm, "Prep Time", prepTime);
+                fillFormField(acroForm, "Cook Time", cookTime);
+                fillFormField(acroForm, "Serves", servings);
+                fillFormField(acroForm, "Meal Type", category);
+
+                // Fill in ingredients
+                for (int i = 0; i < ingredients.size(); i++) {
+                    String ingredientField = "Ingredient" + (i + 1);
+                    fillFormField(acroForm, ingredientField, ingredients.get(i));
+                }
+
+                // Fill in directions (steps)
+                for (int i = 0; i < instructions.size(); i++) {
+                    String directionField = "Direction" + (i + 1);
+                    fillFormField(acroForm, directionField, instructions.get(i));
+                }
+
+                // Fill in notes
+                fillFormField(acroForm, "Notes", notes);
+
+                // Save the filled-out PDF
+                FileChooser saveFileChooser = new FileChooser();
+                saveFileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PDF Files", "*.pdf"));
+                saveFileChooser.setTitle("Save Recipe");
+                saveFileChooser.setInitialFileName(recipeName + "_filled.pdf");
+                File saveFile = saveFileChooser.showSaveDialog(new Stage());
+
+                if (saveFile != null) {
+                    document.save(saveFile);
+                    showInfoDialog("Recipe saved successfully!");
+                }
+            } else {
+                showErrorDialog("No form fields found in the PDF template.");
+            }
+        } catch (IOException e) {
+            showErrorDialog("Error loading or saving the PDF template.");
+        }
+
     }
 
     /**
