@@ -1,6 +1,6 @@
 /**
  * Recipe Vault Application
- * 
+ *
  * This JavaFX application provides a user interface to enter recipe information.
  * Users can:
  *  - Input recipe metadata (name, category, author, time, servings, theme)
@@ -9,14 +9,14 @@
  *  - Enter notes or tips for the recipe
  *  - Reset the form to clear all inputs
  *  - Receive validation alerts via pop-up dialogs
- * 
+ *
  * The application window opens centered horizontally and maximized vertically.
  * Lists for ingredients and instructions use ObservableLists linked to ListView components.
- * 
+ *
  * Developed using JavaFX UI components like BorderPane, GridPane, ListView, TextField, and TextArea.
  */
 
-package application;
+package org.example.recipevault;
 
 import javafx.application.Application;
 import javafx.collections.FXCollections;
@@ -25,14 +25,15 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
-import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -154,7 +155,7 @@ public class Main extends Application {
                 "Spring", "Summer", "Fall", "Winter"
         ));
         themeComboBox.setPromptText("Select theme");
-        themeComboBox.setEditable(true);
+        themeComboBox.setEditable(false);
         grid.add(themeComboBox, 1, row);
 
         row++;
@@ -184,6 +185,8 @@ public class Main extends Application {
                 }
             }
         });
+
+
 
         row++;
         grid.add(new Label("Ingredient List:"), 0, row);
@@ -224,15 +227,15 @@ public class Main extends Application {
                 }
             }
         });
-        
+
         HBox instructionBox = new HBox(10, instructionField, addInstructionButton);
         grid.add(instructionBox, 1, row);
 
         row++;
-                grid.add(new Label("Instruction List:"), 0, row);
+        grid.add(new Label("Instruction List:"), 0, row);
         instructionListView = new ListView<>(instructionsList);
         instructionListView.setPrefHeight(400);
-        
+
         grid.add(instructionListView, 1, row);
 
         row++;
@@ -260,6 +263,7 @@ public class Main extends Application {
         box.setAlignment(Pos.CENTER_RIGHT);
         box.setPadding(new Insets(20, 0, 0, 0));
         Button save = new Button("Save");
+        save.setOnAction(e -> saveRecipeToPDF());
         Button reset = new Button("Reset");
         reset.setOnAction(e -> resetForm());
         Button close = new Button("Close");
@@ -281,8 +285,8 @@ public class Main extends Application {
         } else {
             showMessageDialog("Ingredient already in the list or empty");
         }
-            statusLabel.setText("Ingredient already in the list or empty");
-        }
+        statusLabel.setText("Ingredient already in the list or empty");
+    }
 
     // Removes the selected ingredient from the list
     private void removeIngredient() {
@@ -308,8 +312,8 @@ public class Main extends Application {
         } else {
             showMessageDialog("Instruction already in the list or empty");
         }
-            statusLabel.setText("Instruction already in the list or empty");
-        }
+        statusLabel.setText("Instruction already in the list or empty");
+    }
 
     // Removes the selected instruction from the list
     private void removeInstruction() {
