@@ -33,6 +33,8 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
+import java.util.ArrayList;
+import java.util.List;
 
 //Main JavaFX application class for Recipe Vault
 public class Main extends Application {
