@@ -171,7 +171,16 @@ public class Main extends Application {
         HBox ingredientBox = new HBox(10, ingredientField, addIngredientButton);
         grid.add(ingredientBox, 1, row);
 
-        
+        // Add support for pressing Enter in ingredientField
+        ingredientField.setOnKeyPressed(event -> {
+            if (event.getCode() == KeyCode.ENTER) {
+                String ingredient = ingredientField.getText();
+                if (!ingredient.isEmpty()) {
+                    ingredientsList.add(ingredient);
+                    ingredientField.clear();
+                }
+            }
+        });
 
         row++;
         grid.add(new Label("Ingredient List:"), 0, row);
@@ -201,6 +210,18 @@ public class Main extends Application {
             addInstruction();
             GridPane.setRowIndex(statusLabel, GridPane.getRowIndex(instructionListView) - 1);
         });
+
+        // Add support for pressing Enter in instructionField
+        instructionField.setOnKeyPressed(event -> {
+            if (event.getCode() == KeyCode.ENTER) {
+                String step = instructionField.getText();
+                if (!step.isEmpty()) {
+                    instructionsList.add(step);
+                    instructionField.clear();
+                }
+            }
+        });
+        
         HBox instructionBox = new HBox(10, instructionField, addInstructionButton);
         grid.add(instructionBox, 1, row);
 
