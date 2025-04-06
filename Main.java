@@ -1,3 +1,5 @@
+package org.example.recipevault;
+
 /**
  * Recipe Vault Application
  *
@@ -16,8 +18,6 @@
  * Developed using JavaFX UI components like BorderPane, GridPane, ListView, TextField, and TextArea.
  */
 
-package org.example.recipevault;
-
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -33,6 +33,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
+import org.example.recipevault.RecipePDFWriter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -87,6 +88,7 @@ public class Main extends Application {
         primaryStage.setY(0);
         primaryStage.setScene(scene);
         primaryStage.setHeight(javafx.stage.Screen.getPrimary().getVisualBounds().getHeight());
+        primaryStage.setResizable(false);
         primaryStage.show();
     }
 
@@ -117,36 +119,99 @@ public class Main extends Application {
 
         grid.add(new Label("Recipe Name:"), 0, row);
         recipeNameField = new TextField();
+
+        recipeNameField.setTextFormatter(new TextFormatter<String>(change -> {
+            if (change.getControlNewText().length() <= 13) {
+                return change;
+            } else {
+                return null;
+            }
+        }));
+
         grid.add(recipeNameField, 1, row);
 
         row++;
         grid.add(new Label("Category/Cuisine:"), 0, row);
         recipeCategoryField = new TextField();
+
+        recipeCategoryField.setTextFormatter(new TextFormatter<String>(change -> {
+            if (change.getControlNewText().length() <= 9) {
+                return change;
+            } else {
+                return null;
+            }
+        }));
+
         grid.add(recipeCategoryField, 1, row);
 
         row++;
         grid.add(new Label("Recipe Author:"), 0, row);
         recipeAuthorField = new TextField();
+
+        recipeAuthorField.setTextFormatter(new TextFormatter<String>(change -> {
+            if (change.getControlNewText().length() <= 16) {
+                return change;
+            } else {
+                return null;
+            }
+        }));
+
         grid.add(recipeAuthorField, 1, row);
 
         row++;
         grid.add(new Label("Prep Time:"), 0, row);
         prepTimeField = new TextField();
+
+        prepTimeField.setTextFormatter(new TextFormatter<String>(change -> {
+            if (change.getControlNewText().length() <= 9) {
+                return change;
+            } else {
+                return null;
+            }
+        }));
+
         grid.add(prepTimeField, 1, row);
 
         row++;
         grid.add(new Label("Cook Time:"), 0, row);
         cookTimeField = new TextField();
+
+        cookTimeField.setTextFormatter(new TextFormatter<String>(change -> {
+            if (change.getControlNewText().length() <= 9) {
+                return change;
+            } else {
+                return null;
+            }
+        }));
+
         grid.add(cookTimeField, 1, row);
 
         row++;
         grid.add(new Label("Total Time:"), 0, row);
         totalTimeField = new TextField();
+
+        totalTimeField.setTextFormatter(new TextFormatter<String>(change -> {
+            if (change.getControlNewText().length() <= 9) {
+                return change;
+            } else {
+                return null;
+            }
+        }));
+
         grid.add(totalTimeField, 1, row);
 
         row++;
         grid.add(new Label("Servings:"), 0, row);
         servingsField = new TextField();
+
+        servingsField.setTextFormatter(new TextFormatter<String>(change -> {
+            if (change.getControlNewText().length() <= 9) {
+                return change;
+            } else {
+                return null;
+            }
+        }));
+
         grid.add(servingsField, 1, row);
 
         row++;
@@ -167,9 +232,19 @@ public class Main extends Application {
         row++;
         grid.add(new Label("Add Ingredient:"), 0, row);
         ingredientField = new TextField();
-        ingredientField.textProperty().addListener((obs, oldVal, newVal) -> {
+
+        ingredientField.setTextFormatter(new TextFormatter<String>(change -> {
+            if (change.getControlNewText().length() <= 20) {
+                return change;
+            } else {
+                return null;
+            }
+        }));
+
+        /*ingredientField.textProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal.length() > 20) ingredientField.setText(oldVal);
-        });
+        });*/
+
         Button addIngredientButton = new Button("Add");
         addIngredientButton.setOnAction(e -> addIngredient());
         HBox ingredientBox = new HBox(10, ingredientField, addIngredientButton);
@@ -208,6 +283,15 @@ public class Main extends Application {
         row++;
         grid.add(new Label("Add Instruction:"), 0, row);
         instructionField = new TextField();
+
+        instructionField.setTextFormatter(new TextFormatter<String>(change -> {
+            if (change.getControlNewText().length() <= 49) {
+                return change;
+            } else {
+                return null;
+            }
+        }));
+
         instructionField.textProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal.length() > 100) instructionField.setText(oldVal);
         });
@@ -252,6 +336,15 @@ public class Main extends Application {
         row++;
         notesArea = new TextArea();
         notesArea.setPrefHeight(400);
+
+        notesArea.setTextFormatter(new TextFormatter<String>(change -> {
+            if (change.getControlNewText().length() <= 230) {
+                return change;
+            } else {
+                return null;
+            }
+        }));
+
         grid.add(notesArea, 1, row);
 
         return grid;
