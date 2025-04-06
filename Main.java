@@ -33,7 +33,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
-import org.example.recipevault.RecipePDFWriter;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -254,9 +254,12 @@ public class Main extends Application {
         ingredientField.setOnKeyPressed(event -> {
             if (event.getCode() == KeyCode.ENTER) {
                 String ingredient = ingredientField.getText();
-                if (!ingredient.isEmpty()) {
+                if ((!ingredient.isEmpty() && (ingredientsList.size() < 15))) {
                     ingredientsList.add(ingredient);
                     ingredientField.clear();
+                }
+                else if (ingredientsList.size() >= 15) {
+                    showMessageDialog("You can only add up to 15 ingredients.");
                 }
             }
         });
@@ -305,9 +308,12 @@ public class Main extends Application {
         instructionField.setOnKeyPressed(event -> {
             if (event.getCode() == KeyCode.ENTER) {
                 String step = instructionField.getText();
-                if (!step.isEmpty()) {
+                if (!step.isEmpty() && (instructionsList.size() < 25)) {
                     instructionsList.add(step);
                     instructionField.clear();
+                }
+                else if(instructionsList.size() >= 25) {
+                    showMessageDialog("You can only add up to 25 steps.");
                 }
             }
         });
