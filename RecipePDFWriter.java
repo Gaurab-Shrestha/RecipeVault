@@ -101,10 +101,13 @@ public class RecipePDFWriter {
             if (acroForm != null) {
                 // Fill in the form fields
                 fillFormField(acroForm, "Recipe", recipeName);
+                fillFormField(acroForm, "Author", author);
                 fillFormField(acroForm, "Prep Time", prepTime);
                 fillFormField(acroForm, "Cook Time", cookTime);
+                fillFormField(acroForm, "Total Time", totalTime);
                 fillFormField(acroForm, "Serves", servings);
                 fillFormField(acroForm, "Meal Type", category);
+
 
                 // Fill in ingredients
                 for (int i = 0; i < ingredients.size(); i++) {
@@ -127,6 +130,8 @@ public class RecipePDFWriter {
                 saveFileChooser.setTitle("Save Recipe");
                 saveFileChooser.setInitialFileName(recipeName + "_filled.pdf");
                 File saveFile = saveFileChooser.showSaveDialog(new Stage());
+
+
 
                 if (saveFile != null) {
                     document.save(saveFile);
