@@ -19,12 +19,18 @@ package org.example.recipevault;
  */
 
 import javafx.application.Application;
+import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.paint.Color;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
@@ -35,6 +41,7 @@ import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,21 +49,39 @@ import java.util.List;
 public class Main extends Application {
     // Recipe attributes
     private TextField recipeNameField;
+    private Label recipeNameCount;
+    private int recipeNameLimit = 13;
     private TextField recipeCategoryField;
+    private Label recipeCategoryCount;
+    private int recipeCategoryLimit = 9;
     private TextField prepTimeField;
+    private Label prepTimeCount;
+    private int prepTimeLimit = 9;
     private TextField cookTimeField;
+    private Label cookTimeCount;
+    private int cookTimeLimit = 9;
     private TextField totalTimeField;
+    private Label totalTimeCount;
+    private int totalTimeLimit = 9;
     private TextField servingsField;
+    private Label servingsCount;
+    private int servingsLimit = 9;
     private TextField recipeAuthorField;
+    private Label recipeAuthorCount;
+    private int recipeAuthorLimit = 16;
     private ComboBox<String> themeComboBox;
 
     // Ingredients
     private TextField ingredientField;
+    private Label ingredientCount;
+    private int ingredientLimit = 20;
     private ListView<String> ingredientListView;
     private ObservableList<String> ingredientsList = FXCollections.observableArrayList();
 
     // Instructions
     private TextField instructionField;
+    private Label instructionCount;
+    private int instructionLimit = 49;
     private ListView<String> instructionListView;
     private ObservableList<String> instructionsList = FXCollections.observableArrayList();
 
@@ -119,51 +144,117 @@ public class Main extends Application {
 
         grid.add(new Label("Recipe Name:"), 0, row);
         recipeNameField = new TextField();
+        HBox recipeNameBox = new HBox(10);
 
         recipeNameField.setTextFormatter(new TextFormatter<String>(change -> {
-            if (change.getControlNewText().length() <= 13) {
+            if (change.getControlNewText().length() <= recipeNameLimit) {
                 return change;
             } else {
                 return null;
             }
         }));
 
+        recipeNameCount = new Label("0/" + recipeNameLimit);
+        recipeNameBox.getChildren().addAll(recipeNameField, recipeNameCount);
+        grid.add(recipeNameBox, 1, row);
+
+        // Bind the text content
+        recipeNameCount.textProperty().bind(Bindings.createStringBinding(() -> {
+            int length = recipeNameField.getText().length();
+            return length + "/" + recipeNameLimit;
+
+        }, recipeNameField.textProperty()));
+
+        // Add a listener to update the color if recipeNameField character limit reached
+        recipeNameField.textProperty().addListener((obs, oldText, newText) -> {
+            int length = newText.length();
+            recipeNameCount.setTextFill(length == recipeNameLimit ? Color.RED : Color.GRAY);
+        });
+
         grid.add(recipeNameField, 1, row);
+        grid.add(recipeNameCount, 2, row);
 
         row++;
         grid.add(new Label("Category/Cuisine:"), 0, row);
         recipeCategoryField = new TextField();
+        recipeCategoryCount = new Label("0/" + recipeCategoryLimit);
+
+        // Bind the text content
+        recipeCategoryCount.textProperty().bind(Bindings.createStringBinding(() -> {
+            int length = recipeCategoryField.getText().length();
+            return length + "/" + recipeCategoryLimit;
+
+        }, recipeCategoryField.textProperty()));
+
+        // Add a listener to update the color if ingredientField character limit reached
+        recipeCategoryField.textProperty().addListener((obs, oldText, newText) -> {
+            int length = newText.length();
+            recipeCategoryCount.setTextFill(length == recipeCategoryLimit ? Color.RED : Color.GRAY);
+        });
 
         recipeCategoryField.setTextFormatter(new TextFormatter<String>(change -> {
-            if (change.getControlNewText().length() <= 9) {
+            if (change.getControlNewText().length() <= recipeCategoryLimit) {
                 return change;
             } else {
                 return null;
             }
         }));
 
+
+
         grid.add(recipeCategoryField, 1, row);
+        grid.add(recipeCategoryCount, 2, row);
 
         row++;
         grid.add(new Label("Recipe Author:"), 0, row);
+        recipeAuthorCount = new Label("0/" + recipeAuthorLimit);
         recipeAuthorField = new TextField();
 
+        // Bind the text content
+        recipeAuthorCount.textProperty().bind(Bindings.createStringBinding(() -> {
+            int length = recipeAuthorField.getText().length();
+            return length + "/" + recipeAuthorLimit;
+
+        }, recipeAuthorField.textProperty()));
+
+        // Add a listener to update the color if recipeAuthorField character limit reached
+        recipeAuthorField.textProperty().addListener((obs, oldText, newText) -> {
+            int length = newText.length();
+            recipeAuthorCount.setTextFill(length == recipeAuthorLimit ? Color.RED : Color.GRAY);
+        });
+
         recipeAuthorField.setTextFormatter(new TextFormatter<String>(change -> {
-            if (change.getControlNewText().length() <= 16) {
+            if (change.getControlNewText().length() <= recipeAuthorLimit) {
                 return change;
             } else {
                 return null;
             }
         }));
 
+
         grid.add(recipeAuthorField, 1, row);
+        grid.add(recipeAuthorCount, 2, row);
 
         row++;
         grid.add(new Label("Prep Time:"), 0, row);
+        prepTimeCount = new Label("0/" + prepTimeLimit);
         prepTimeField = new TextField();
 
+        // Bind the text content
+        prepTimeCount.textProperty().bind(Bindings.createStringBinding(() -> {
+            int length = prepTimeField.getText().length();
+            return length + "/" + prepTimeLimit;
+
+        }, prepTimeField.textProperty()));
+
+        // Add a listener to update the color if prepTimeField character limit reached
+        prepTimeField.textProperty().addListener((obs, oldText, newText) -> {
+            int length = newText.length();
+            prepTimeCount.setTextFill(length == prepTimeLimit ? Color.RED : Color.GRAY);
+        });
+
         prepTimeField.setTextFormatter(new TextFormatter<String>(change -> {
-            if (change.getControlNewText().length() <= 9) {
+            if (change.getControlNewText().length() <= prepTimeLimit) {
                 return change;
             } else {
                 return null;
@@ -171,13 +262,28 @@ public class Main extends Application {
         }));
 
         grid.add(prepTimeField, 1, row);
+        grid.add(prepTimeCount, 2, row);
 
         row++;
         grid.add(new Label("Cook Time:"), 0, row);
+        cookTimeCount = new Label("0/" + cookTimeLimit);
         cookTimeField = new TextField();
 
+        // Bind the text content
+        cookTimeCount.textProperty().bind(Bindings.createStringBinding(() -> {
+            int length = cookTimeField.getText().length();
+            return length + "/" + cookTimeLimit;
+
+        }, cookTimeField.textProperty()));
+
+        // Add a listener to update the color if cookTimeField character limit reached
+        cookTimeField.textProperty().addListener((obs, oldText, newText) -> {
+            int length = newText.length();
+            cookTimeCount.setTextFill(length == cookTimeLimit ? Color.RED : Color.GRAY);
+        });
+
         cookTimeField.setTextFormatter(new TextFormatter<String>(change -> {
-            if (change.getControlNewText().length() <= 9) {
+            if (change.getControlNewText().length() <= cookTimeLimit) {
                 return change;
             } else {
                 return null;
@@ -185,13 +291,28 @@ public class Main extends Application {
         }));
 
         grid.add(cookTimeField, 1, row);
+        grid.add(cookTimeCount, 2, row);
 
         row++;
         grid.add(new Label("Total Time:"), 0, row);
+        totalTimeCount = new Label("0/" + totalTimeLimit);
         totalTimeField = new TextField();
 
+        // Bind the text content
+        totalTimeCount.textProperty().bind(Bindings.createStringBinding(() -> {
+            int length = totalTimeField.getText().length();
+            return length + "/" + totalTimeLimit;
+
+        }, totalTimeField.textProperty()));
+
+        // Add a listener to update the color if totalTimeField character limit reached
+        totalTimeField.textProperty().addListener((obs, oldText, newText) -> {
+            int length = newText.length();
+            totalTimeCount.setTextFill(length == totalTimeLimit ? Color.RED : Color.GRAY);
+        });
+
         totalTimeField.setTextFormatter(new TextFormatter<String>(change -> {
-            if (change.getControlNewText().length() <= 9) {
+            if (change.getControlNewText().length() <= totalTimeLimit) {
                 return change;
             } else {
                 return null;
@@ -199,13 +320,28 @@ public class Main extends Application {
         }));
 
         grid.add(totalTimeField, 1, row);
+        grid.add(totalTimeCount, 2, row);
 
         row++;
         grid.add(new Label("Servings:"), 0, row);
+        servingsCount = new Label("0/" + servingsLimit);
         servingsField = new TextField();
 
+        // Bind the text content
+        servingsCount.textProperty().bind(Bindings.createStringBinding(() -> {
+            int length = servingsField.getText().length();
+            return length + "/" + servingsLimit;
+
+        }, servingsField.textProperty()));
+
+        // Add a listener to update the color if servingsField character limit reached
+        servingsField.textProperty().addListener((obs, oldText, newText) -> {
+            int length = newText.length();
+            servingsCount.setTextFill(length == servingsLimit ? Color.RED : Color.GRAY);
+        });
+
         servingsField.setTextFormatter(new TextFormatter<String>(change -> {
-            if (change.getControlNewText().length() <= 9) {
+            if (change.getControlNewText().length() <= servingsLimit) {
                 return change;
             } else {
                 return null;
@@ -213,6 +349,7 @@ public class Main extends Application {
         }));
 
         grid.add(servingsField, 1, row);
+        grid.add(servingsCount, 2, row);
 
         row++;
         grid.add(new Label("Theme:"), 0, row);
@@ -231,10 +368,24 @@ public class Main extends Application {
 
         row++;
         grid.add(new Label("Add Ingredient:"), 0, row);
+        ingredientCount = new Label("0/" + ingredientLimit);
         ingredientField = new TextField();
 
+        // Bind the text content
+        ingredientCount.textProperty().bind(Bindings.createStringBinding(() -> {
+            int length = ingredientField.getText().length();
+            return length + "/" + ingredientLimit;
+
+        }, ingredientField.textProperty()));
+
+        // Add a listener to update the color if ingredientField character limit reached
+        ingredientField.textProperty().addListener((obs, oldText, newText) -> {
+            int length = newText.length();
+            ingredientCount.setTextFill(length == ingredientLimit ? Color.RED : Color.GRAY);
+        });
+
         ingredientField.setTextFormatter(new TextFormatter<String>(change -> {
-            if (change.getControlNewText().length() <= 20) {
+            if (change.getControlNewText().length() <= ingredientLimit) {
                 return change;
             } else {
                 return null;
@@ -249,6 +400,7 @@ public class Main extends Application {
         addIngredientButton.setOnAction(e -> addIngredient());
         HBox ingredientBox = new HBox(10, ingredientField, addIngredientButton);
         grid.add(ingredientBox, 1, row);
+        grid.add(ingredientCount, 2, row);
 
         // Add support for pressing Enter in ingredientField
         ingredientField.setOnKeyPressed(event -> {
@@ -277,6 +429,7 @@ public class Main extends Application {
         removeIngredientButton.setOnAction(e -> removeIngredient());
         grid.add(removeIngredientButton, 1, row);
 
+
         row++;
         grid.add(new Separator(), 0, row, 2, 1);
 
@@ -286,9 +439,23 @@ public class Main extends Application {
         row++;
         grid.add(new Label("Add Instruction:"), 0, row);
         instructionField = new TextField();
+        instructionCount = new Label("0/" + instructionLimit);
+
+        // Bind the text content
+        instructionCount.textProperty().bind(Bindings.createStringBinding(() -> {
+            int length = instructionField.getText().length();
+            return length + "/" + instructionLimit;
+
+        }, instructionField.textProperty()));
+
+        // Add a listener to update the color if instructionField character limit reached
+        instructionField.textProperty().addListener((obs, oldText, newText) -> {
+            int length = newText.length();
+            instructionCount.setTextFill(length == instructionLimit ? Color.RED : Color.GRAY);
+        });
 
         instructionField.setTextFormatter(new TextFormatter<String>(change -> {
-            if (change.getControlNewText().length() <= 49) {
+            if (change.getControlNewText().length() <= instructionLimit) {
                 return change;
             } else {
                 return null;
@@ -320,6 +487,7 @@ public class Main extends Application {
 
         HBox instructionBox = new HBox(10, instructionField, addInstructionButton);
         grid.add(instructionBox, 1, row);
+        grid.add(instructionCount, 2, row);
 
         row++;
         grid.add(new Label("Instruction List:"), 0, row);
@@ -361,14 +529,64 @@ public class Main extends Application {
         HBox box = new HBox(10);
         box.setAlignment(Pos.CENTER_RIGHT);
         box.setPadding(new Insets(20, 0, 0, 0));
+
         Button save = new Button("Save");
-        save.setOnAction(e -> saveRecipeToPDF());
+
+        //Save user input to pdf if all fields are field or selected besides notes.
+        save.setOnAction(e -> {
+            if(validateFields())
+            {
+                saveRecipeToPDF();
+            }
+
+        });
         Button reset = new Button("Reset");
         reset.setOnAction(e -> resetForm());
         Button close = new Button("Close");
         close.setOnAction(e -> stage.close());
         box.getChildren().addAll(save, reset, close);
         return box;
+    }
+
+    // Validates if all required fields are filled
+    private boolean validateFields() {
+        List<String> emptyFields = new ArrayList<>();
+        if (recipeNameField.getText().trim().isEmpty()) {
+            emptyFields.add("Recipe Name");
+        }
+        if (recipeCategoryField.getText().trim().isEmpty()) {
+            emptyFields.add("Category/Cuisine");
+        }
+        if (recipeAuthorField.getText().trim().isEmpty()) {
+            emptyFields.add("Recipe Author");
+        }
+        if (prepTimeField.getText().trim().isEmpty()) {
+            emptyFields.add("Prep Time");
+        }
+        if (cookTimeField.getText().trim().isEmpty()) {
+            emptyFields.add("Cook Time");
+        }
+        if (totalTimeField.getText().trim().isEmpty()) {
+            emptyFields.add("Total Time");
+        }
+        if (servingsField.getText().trim().isEmpty()) {
+            emptyFields.add("Servings");
+        }
+        if (themeComboBox.getValue() == null) {
+            emptyFields.add("Theme");
+        }
+        if (ingredientsList.isEmpty()) {
+            emptyFields.add("Ingredients List");
+        }
+        if (instructionsList.isEmpty()) {
+            emptyFields.add("Cooking Instructions");
+        }
+        if (!emptyFields.isEmpty()) {
+            showMessageDialog("The following fields cannot be empty: " + String.join(", ", emptyFields));
+            return false;
+        }
+
+        return true;
     }
 
     // Adds an ingredient to the list if valid and under limit
