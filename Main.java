@@ -50,43 +50,45 @@ public class Main extends Application {
     // Recipe attributes
     private TextField recipeNameField;
     private Label recipeNameCount;
-    private int recipeNameLimit = 13;
+    private int recipeNameLimit = 18;
     private TextField recipeCategoryField;
     private Label recipeCategoryCount;
-    private int recipeCategoryLimit = 9;
+    private int recipeCategoryLimit = 15;
     private TextField prepTimeField;
     private Label prepTimeCount;
-    private int prepTimeLimit = 9;
+    private int prepTimeLimit = 15;
     private TextField cookTimeField;
     private Label cookTimeCount;
-    private int cookTimeLimit = 9;
+    private int cookTimeLimit = 15;
     private TextField totalTimeField;
     private Label totalTimeCount;
-    private int totalTimeLimit = 9;
+    private int totalTimeLimit = 15;
     private TextField servingsField;
     private Label servingsCount;
-    private int servingsLimit = 9;
+    private int servingsLimit = 15;
     private TextField recipeAuthorField;
     private Label recipeAuthorCount;
-    private int recipeAuthorLimit = 16;
+    private int recipeAuthorLimit = 27;
     private ComboBox<String> themeComboBox;
 
     // Ingredients
     private TextField ingredientField;
     private Label ingredientCount;
-    private int ingredientLimit = 20;
+    private int ingredientLimit = 38;
     private ListView<String> ingredientListView;
     private ObservableList<String> ingredientsList = FXCollections.observableArrayList();
 
     // Instructions
     private TextField instructionField;
     private Label instructionCount;
-    private int instructionLimit = 49;
+    private int instructionLimit = 77;
     private ListView<String> instructionListView;
     private ObservableList<String> instructionsList = FXCollections.observableArrayList();
 
     // Notes
     private TextArea notesArea;
+    private Label notesCount;
+    private int notesLimit = 700;
 
     // Status label
     private Label statusLabel;
@@ -392,10 +394,6 @@ public class Main extends Application {
             }
         }));
 
-        /*ingredientField.textProperty().addListener((obs, oldVal, newVal) -> {
-            if (newVal.length() > 20) ingredientField.setText(oldVal);
-        });*/
-
         Button addIngredientButton = new Button("Add");
         addIngredientButton.setOnAction(e -> addIngredient());
         HBox ingredientBox = new HBox(10, ingredientField, addIngredientButton);
@@ -509,10 +507,24 @@ public class Main extends Application {
 
         row++;
         notesArea = new TextArea();
+        notesCount = new Label("0/" + notesLimit);
         notesArea.setPrefHeight(400);
 
+        // Bind the text content
+        notesCount.textProperty().bind(Bindings.createStringBinding(() -> {
+            int length = notesArea.getText().length();
+            return length + "/" + notesLimit;
+
+        }, notesArea.textProperty()));
+
+        // Add a listener to update the color if ingredientField character limit reached
+        notesArea.textProperty().addListener((obs, oldText, newText) -> {
+            int length = newText.length();
+            notesCount.setTextFill(length == notesLimit ? Color.RED : Color.GRAY);
+        });
+
         notesArea.setTextFormatter(new TextFormatter<String>(change -> {
-            if (change.getControlNewText().length() <= 230) {
+            if (change.getControlNewText().length() <= notesLimit) {
                 return change;
             } else {
                 return null;
@@ -520,6 +532,7 @@ public class Main extends Application {
         }));
 
         grid.add(notesArea, 1, row);
+        grid.add(notesCount, 2, row);
 
         return grid;
     }
