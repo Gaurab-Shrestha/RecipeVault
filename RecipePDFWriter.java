@@ -17,7 +17,7 @@ import java.util.List;
  * RecipePDFWriter is a utility class responsible for filling out an existing PDF template with recipe details.
  * It uses Apache PDFBox to load the template, fill in the form fields, and save the new recipe PDF.
  */
-public class RecipePDFWriter {
+public class RecipePDFWriter extends Main {
 
     // Constants for maximum ingredients and directions
     private static final int MAX_INGREDIENTS = 15;
@@ -108,7 +108,7 @@ public class RecipePDFWriter {
                 fillFormField(acroForm, "Serves", servings);
                 fillFormField(acroForm, "Meal Type", category);
 
-
+                
                 // Fill in ingredients
                 for (int i = 0; i < ingredients.size(); i++) {
                     String ingredientField = "Ingredient" + (i + 1);
