@@ -2,7 +2,7 @@ package org.example.recipevault;
 
 /**
  * Recipe Vault Application
- *
+ * 
  * This JavaFX application provides a user interface to enter recipe information.
  * Users can:
  *  - Input recipe metadata (name, category, author, time, servings, theme)
@@ -11,10 +11,10 @@ package org.example.recipevault;
  *  - Enter notes or tips for the recipe
  *  - Reset the form to clear all inputs
  *  - Receive validation alerts via pop-up dialogs
- *
+ * 
  * The application window opens centered horizontally and maximized vertically.
  * Lists for ingredients and instructions use ObservableLists linked to ListView components.
- *
+ * 
  * Developed using JavaFX UI components like BorderPane, GridPane, ListView, TextField, and TextArea.
  */
 
@@ -28,7 +28,6 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.paint.Color;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
@@ -40,8 +39,6 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 
-
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -93,23 +90,53 @@ public class Main extends Application {
     // Status label
     private Label statusLabel;
 
+    // Color constants for styling
+    private final String CREAM_BACKGROUND = "#FFF8E1";
+    private final String BROWN_BUTTON = "#8B4513";
+    private final String BROWN_LIGHT = "#D2B48C"; 
+    private final String BROWN_DARK = "#654321"; 
+    private final String BUTTON_TEXT = "white";
+    
+    // Color object for dark brown text
+    private final javafx.scene.paint.Color DARK_BROWN_COLOR = javafx.scene.paint.Color.web(BROWN_DARK);
+
     @Override
     public void start(Stage primaryStage) {
         primaryStage.setTitle("Recipe Vault");
 
         BorderPane mainLayout = new BorderPane();
         mainLayout.setPadding(new Insets(10));
+        mainLayout.setStyle("-fx-background-color: " + CREAM_BACKGROUND + ";");
 
         VBox headerBox = createHeader();
         mainLayout.setTop(headerBox);
 
+        // Note for character counters 
+        Label characterLimitExplanation = new Label("Numbers show current text length / maximum characters allowed");
+        characterLimitExplanation.setStyle(
+            "-fx-font-family: 'Georgia';" +
+            "-fx-font-style: italic;" +
+            "-fx-font-size: 14px;" + 
+            "-fx-padding: 0 0 10 0;" +
+            "-fx-background-color: " + CREAM_BACKGROUND + ";"
+        );
+        // Set text color directly
+        characterLimitExplanation.setTextFill(DARK_BROWN_COLOR);
+        
+        VBox contentWithNote = new VBox(10);
+        contentWithNote.setStyle("-fx-background-color: " + CREAM_BACKGROUND + ";");
+        contentWithNote.getChildren().add(characterLimitExplanation);
+        
         GridPane contentGrid = createContentGrid();
-        mainLayout.setCenter(contentGrid);
+        contentWithNote.getChildren().add(contentGrid);
+        mainLayout.setCenter(contentWithNote);
 
         HBox buttonBox = createButtons(primaryStage);
         mainLayout.setBottom(buttonBox);
 
         Scene scene = new Scene(mainLayout, 800, javafx.stage.Screen.getPrimary().getVisualBounds().getHeight());
+        scene.getRoot().setStyle("-fx-font-family: 'Georgia';");
+        
         primaryStage.centerOnScreen();
         primaryStage.setOnShown(e -> primaryStage.setX((javafx.stage.Screen.getPrimary().getVisualBounds().getWidth() - primaryStage.getWidth()) / 2));
         primaryStage.setY(0);
@@ -124,12 +151,15 @@ public class Main extends Application {
         VBox headerBox = new VBox(10);
         headerBox.setAlignment(Pos.CENTER);
         headerBox.setPadding(new Insets(0, 0, 20, 0));
+        headerBox.setStyle("-fx-background-color: " + CREAM_BACKGROUND + ";");
 
         Label titleLabel = new Label("Recipe Vault");
         titleLabel.setFont(Font.font("Georgia", FontWeight.BOLD, 24));
+        titleLabel.setTextFill(DARK_BROWN_COLOR);  // Set dark brown color
 
         Label sloganLabel = new Label("Preserve the past, cook for the future!");
         sloganLabel.setFont(Font.font("Georgia", FontWeight.NORMAL, 14));
+        sloganLabel.setTextFill(DARK_BROWN_COLOR);  // Set dark brown color
 
         headerBox.getChildren().addAll(titleLabel, sloganLabel);
         return headerBox;
@@ -141,11 +171,24 @@ public class Main extends Application {
         grid.setHgap(10);
         grid.setVgap(10);
         grid.setPadding(new Insets(10));
+        grid.setStyle("-fx-background-color: " + CREAM_BACKGROUND + ";");
 
         int row = 0;
 
-        grid.add(new Label("Recipe Name:"), 0, row);
+        String labelStyle = "-fx-font-family: 'Georgia'; -fx-font-size: 14px;";
+        
+        String textFieldStyle = "-fx-font-family: 'Georgia'; -fx-font-size: 14px;";
+
+        Label recipeNameLabel = new Label("Recipe Name:");
+        recipeNameLabel.setStyle(labelStyle);
+        recipeNameLabel.setTextFill(DARK_BROWN_COLOR);
+        grid.add(recipeNameLabel, 0, row);
+        
         recipeNameField = new TextField();
+        recipeNameField.setStyle(textFieldStyle);
+
+        recipeNameField.setStyle("-fx-text-fill: " + BROWN_DARK + ";");
+        
         HBox recipeNameBox = new HBox(10);
 
         recipeNameField.setTextFormatter(new TextFormatter<String>(change -> {
@@ -157,42 +200,30 @@ public class Main extends Application {
         }));
 
         recipeNameCount = new Label("0/" + recipeNameLimit);
+        recipeNameCount.setStyle(labelStyle);
+        recipeNameCount.setTextFill(DARK_BROWN_COLOR);
         recipeNameBox.getChildren().addAll(recipeNameField, recipeNameCount);
         grid.add(recipeNameBox, 1, row);
 
-        // Bind the text content
-        recipeNameCount.textProperty().bind(Bindings.createStringBinding(() -> {
-            int length = recipeNameField.getText().length();
-            return length + "/" + recipeNameLimit;
-
-        }, recipeNameField.textProperty()));
-
-        // Add a listener to update the color if recipeNameField character limit reached
-        recipeNameField.textProperty().addListener((obs, oldText, newText) -> {
-            int length = newText.length();
-            recipeNameCount.setTextFill(length == recipeNameLimit ? Color.RED : Color.GRAY);
-        });
-
-        grid.add(recipeNameField, 1, row);
-        grid.add(recipeNameCount, 2, row);
+        // Use helper method to set up the character counter
+        setupCharacterCounter(recipeNameCount, recipeNameField.textProperty(), recipeNameLimit);
 
         row++;
-        grid.add(new Label("Category/Cuisine:"), 0, row);
+        Label categoryLabel = new Label("Cuisine:");
+        categoryLabel.setStyle(labelStyle);
+        categoryLabel.setTextFill(DARK_BROWN_COLOR);
+        grid.add(categoryLabel, 0, row);
+        
         recipeCategoryField = new TextField();
+        recipeCategoryField.setStyle(textFieldStyle);
+        recipeCategoryField.setStyle("-fx-text-fill: " + BROWN_DARK + ";");
+        
         recipeCategoryCount = new Label("0/" + recipeCategoryLimit);
+        recipeCategoryCount.setStyle(labelStyle);
+        recipeCategoryCount.setTextFill(DARK_BROWN_COLOR);
 
-        // Bind the text content
-        recipeCategoryCount.textProperty().bind(Bindings.createStringBinding(() -> {
-            int length = recipeCategoryField.getText().length();
-            return length + "/" + recipeCategoryLimit;
-
-        }, recipeCategoryField.textProperty()));
-
-        // Add a listener to update the color if ingredientField character limit reached
-        recipeCategoryField.textProperty().addListener((obs, oldText, newText) -> {
-            int length = newText.length();
-            recipeCategoryCount.setTextFill(length == recipeCategoryLimit ? Color.RED : Color.GRAY);
-        });
+        // Use helper method for category count
+        setupCharacterCounter(recipeCategoryCount, recipeCategoryField.textProperty(), recipeCategoryLimit);
 
         recipeCategoryField.setTextFormatter(new TextFormatter<String>(change -> {
             if (change.getControlNewText().length() <= recipeCategoryLimit) {
@@ -202,28 +233,25 @@ public class Main extends Application {
             }
         }));
 
-
-
         grid.add(recipeCategoryField, 1, row);
         grid.add(recipeCategoryCount, 2, row);
 
         row++;
-        grid.add(new Label("Recipe Author:"), 0, row);
+        Label authorLabel = new Label("Recipe Author:");
+        authorLabel.setStyle(labelStyle);
+        authorLabel.setTextFill(DARK_BROWN_COLOR);
+        grid.add(authorLabel, 0, row);
+        
         recipeAuthorCount = new Label("0/" + recipeAuthorLimit);
+        recipeAuthorCount.setStyle(labelStyle);
+        recipeAuthorCount.setTextFill(DARK_BROWN_COLOR);
+        
         recipeAuthorField = new TextField();
+        recipeAuthorField.setStyle(textFieldStyle);
+        recipeAuthorField.setStyle("-fx-text-fill: " + BROWN_DARK + ";");
 
-        // Bind the text content
-        recipeAuthorCount.textProperty().bind(Bindings.createStringBinding(() -> {
-            int length = recipeAuthorField.getText().length();
-            return length + "/" + recipeAuthorLimit;
-
-        }, recipeAuthorField.textProperty()));
-
-        // Add a listener to update the color if recipeAuthorField character limit reached
-        recipeAuthorField.textProperty().addListener((obs, oldText, newText) -> {
-            int length = newText.length();
-            recipeAuthorCount.setTextFill(length == recipeAuthorLimit ? Color.RED : Color.GRAY);
-        });
+        // Use helper method for author count
+        setupCharacterCounter(recipeAuthorCount, recipeAuthorField.textProperty(), recipeAuthorLimit);
 
         recipeAuthorField.setTextFormatter(new TextFormatter<String>(change -> {
             if (change.getControlNewText().length() <= recipeAuthorLimit) {
@@ -233,27 +261,25 @@ public class Main extends Application {
             }
         }));
 
-
         grid.add(recipeAuthorField, 1, row);
         grid.add(recipeAuthorCount, 2, row);
 
         row++;
-        grid.add(new Label("Prep Time:"), 0, row);
+        Label prepTimeLabel = new Label("Prep Time:");
+        prepTimeLabel.setStyle(labelStyle);
+        prepTimeLabel.setTextFill(DARK_BROWN_COLOR);
+        grid.add(prepTimeLabel, 0, row);
+        
         prepTimeCount = new Label("0/" + prepTimeLimit);
+        prepTimeCount.setStyle(labelStyle);
+        prepTimeCount.setTextFill(DARK_BROWN_COLOR);
+        
         prepTimeField = new TextField();
+        prepTimeField.setStyle(textFieldStyle);
+        prepTimeField.setStyle("-fx-text-fill: " + BROWN_DARK + ";");
 
-        // Bind the text content
-        prepTimeCount.textProperty().bind(Bindings.createStringBinding(() -> {
-            int length = prepTimeField.getText().length();
-            return length + "/" + prepTimeLimit;
-
-        }, prepTimeField.textProperty()));
-
-        // Add a listener to update the color if prepTimeField character limit reached
-        prepTimeField.textProperty().addListener((obs, oldText, newText) -> {
-            int length = newText.length();
-            prepTimeCount.setTextFill(length == prepTimeLimit ? Color.RED : Color.GRAY);
-        });
+        // Use helper method for prep time count
+        setupCharacterCounter(prepTimeCount, prepTimeField.textProperty(), prepTimeLimit);
 
         prepTimeField.setTextFormatter(new TextFormatter<String>(change -> {
             if (change.getControlNewText().length() <= prepTimeLimit) {
@@ -267,22 +293,21 @@ public class Main extends Application {
         grid.add(prepTimeCount, 2, row);
 
         row++;
-        grid.add(new Label("Cook Time:"), 0, row);
+        Label cookTimeLabel = new Label("Cook Time:");
+        cookTimeLabel.setStyle(labelStyle);
+        cookTimeLabel.setTextFill(DARK_BROWN_COLOR);
+        grid.add(cookTimeLabel, 0, row);
+        
         cookTimeCount = new Label("0/" + cookTimeLimit);
+        cookTimeCount.setStyle(labelStyle);
+        cookTimeCount.setTextFill(DARK_BROWN_COLOR);
+        
         cookTimeField = new TextField();
+        cookTimeField.setStyle(textFieldStyle);
+        cookTimeField.setStyle("-fx-text-fill: " + BROWN_DARK + ";");
 
-        // Bind the text content
-        cookTimeCount.textProperty().bind(Bindings.createStringBinding(() -> {
-            int length = cookTimeField.getText().length();
-            return length + "/" + cookTimeLimit;
-
-        }, cookTimeField.textProperty()));
-
-        // Add a listener to update the color if cookTimeField character limit reached
-        cookTimeField.textProperty().addListener((obs, oldText, newText) -> {
-            int length = newText.length();
-            cookTimeCount.setTextFill(length == cookTimeLimit ? Color.RED : Color.GRAY);
-        });
+        // Use helper method for cook time count
+        setupCharacterCounter(cookTimeCount, cookTimeField.textProperty(), cookTimeLimit);
 
         cookTimeField.setTextFormatter(new TextFormatter<String>(change -> {
             if (change.getControlNewText().length() <= cookTimeLimit) {
@@ -296,22 +321,21 @@ public class Main extends Application {
         grid.add(cookTimeCount, 2, row);
 
         row++;
-        grid.add(new Label("Total Time:"), 0, row);
+        Label totalTimeLabel = new Label("Total Time:");
+        totalTimeLabel.setStyle(labelStyle);
+        totalTimeLabel.setTextFill(DARK_BROWN_COLOR);
+        grid.add(totalTimeLabel, 0, row);
+        
         totalTimeCount = new Label("0/" + totalTimeLimit);
+        totalTimeCount.setStyle(labelStyle);
+        totalTimeCount.setTextFill(DARK_BROWN_COLOR);
+        
         totalTimeField = new TextField();
+        totalTimeField.setStyle(textFieldStyle);
+        totalTimeField.setStyle("-fx-text-fill: " + BROWN_DARK + ";");
 
-        // Bind the text content
-        totalTimeCount.textProperty().bind(Bindings.createStringBinding(() -> {
-            int length = totalTimeField.getText().length();
-            return length + "/" + totalTimeLimit;
-
-        }, totalTimeField.textProperty()));
-
-        // Add a listener to update the color if totalTimeField character limit reached
-        totalTimeField.textProperty().addListener((obs, oldText, newText) -> {
-            int length = newText.length();
-            totalTimeCount.setTextFill(length == totalTimeLimit ? Color.RED : Color.GRAY);
-        });
+        // Use helper method for total time count
+        setupCharacterCounter(totalTimeCount, totalTimeField.textProperty(), totalTimeLimit);
 
         totalTimeField.setTextFormatter(new TextFormatter<String>(change -> {
             if (change.getControlNewText().length() <= totalTimeLimit) {
@@ -325,22 +349,21 @@ public class Main extends Application {
         grid.add(totalTimeCount, 2, row);
 
         row++;
-        grid.add(new Label("Servings:"), 0, row);
+        Label servingsLabel = new Label("Servings:");
+        servingsLabel.setStyle(labelStyle);
+        servingsLabel.setTextFill(DARK_BROWN_COLOR);
+        grid.add(servingsLabel, 0, row);
+        
         servingsCount = new Label("0/" + servingsLimit);
+        servingsCount.setStyle(labelStyle);
+        servingsCount.setTextFill(DARK_BROWN_COLOR);
+        
         servingsField = new TextField();
+        servingsField.setStyle(textFieldStyle);
+        servingsField.setStyle("-fx-text-fill: " + BROWN_DARK + ";");
 
-        // Bind the text content
-        servingsCount.textProperty().bind(Bindings.createStringBinding(() -> {
-            int length = servingsField.getText().length();
-            return length + "/" + servingsLimit;
-
-        }, servingsField.textProperty()));
-
-        // Add a listener to update the color if servingsField character limit reached
-        servingsField.textProperty().addListener((obs, oldText, newText) -> {
-            int length = newText.length();
-            servingsCount.setTextFill(length == servingsLimit ? Color.RED : Color.GRAY);
-        });
+        // Use helper method for servings count
+        setupCharacterCounter(servingsCount, servingsField.textProperty(), servingsLimit);
 
         servingsField.setTextFormatter(new TextFormatter<String>(change -> {
             if (change.getControlNewText().length() <= servingsLimit) {
@@ -354,37 +377,81 @@ public class Main extends Application {
         grid.add(servingsCount, 2, row);
 
         row++;
-        grid.add(new Label("Theme:"), 0, row);
+        Label themeLabel = new Label("Theme:");
+        themeLabel.setStyle(labelStyle);
+        themeLabel.setTextFill(DARK_BROWN_COLOR);
+        grid.add(themeLabel, 0, row);
+        
         themeComboBox = new ComboBox<>(FXCollections.observableArrayList(
                 "Spring", "Summer", "Fall", "Winter"
         ));
         themeComboBox.setPromptText("Select theme");
         themeComboBox.setEditable(false);
+        themeComboBox.setStyle(
+            "-fx-font-family: 'Georgia';" + 
+            "-fx-font-size: 14px;" +
+            "-fx-background-color: " + BROWN_BUTTON + ";" +
+            "-fx-text-fill: white;" +
+            "-fx-mark-color: white;" + 
+            "-fx-prompt-text-fill: white;" 
+        );
+        
+        // Forces text to be white for selected items
+        themeComboBox.setButtonCell(new ListCell<String>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText("Select theme");
+                } else {
+                    setText(item);
+                }
+                setTextFill(javafx.scene.paint.Color.WHITE);
+            }
+        });
+        
+        // Makes popup list items dark brown
+        themeComboBox.setCellFactory(listView -> new ListCell<String>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                } else {
+                    setText(item);
+                }
+                setTextFill(DARK_BROWN_COLOR);
+            }
+        });
+        
         grid.add(themeComboBox, 1, row);
 
         row++;
-        grid.add(new Separator(), 0, row, 2, 1);
+        Separator separator1 = new Separator();
+        grid.add(separator1, 0, row, 2, 1);
 
         row++;
-        grid.add(new Label("Ingredients"), 0, row, 2, 1);
+        Label ingredientsHeaderLabel = new Label("Ingredients");
+        ingredientsHeaderLabel.setStyle(labelStyle + "-fx-font-weight: bold; -fx-font-size: 16px;");
+        ingredientsHeaderLabel.setTextFill(DARK_BROWN_COLOR);
+        grid.add(ingredientsHeaderLabel, 0, row, 2, 1);
 
         row++;
-        grid.add(new Label("Add Ingredient:"), 0, row);
+        Label addIngredientLabel = new Label("Add Ingredient:");
+        addIngredientLabel.setStyle(labelStyle);
+        addIngredientLabel.setTextFill(DARK_BROWN_COLOR);
+        grid.add(addIngredientLabel, 0, row);
+        
         ingredientCount = new Label("0/" + ingredientLimit);
+        ingredientCount.setStyle(labelStyle);
+        ingredientCount.setTextFill(DARK_BROWN_COLOR);
+        
         ingredientField = new TextField();
+        ingredientField.setStyle(textFieldStyle);
+        ingredientField.setStyle("-fx-text-fill: " + BROWN_DARK + ";");
 
-        // Bind the text content
-        ingredientCount.textProperty().bind(Bindings.createStringBinding(() -> {
-            int length = ingredientField.getText().length();
-            return length + "/" + ingredientLimit;
-
-        }, ingredientField.textProperty()));
-
-        // Add a listener to update the color if ingredientField character limit reached
-        ingredientField.textProperty().addListener((obs, oldText, newText) -> {
-            int length = newText.length();
-            ingredientCount.setTextFill(length == ingredientLimit ? Color.RED : Color.GRAY);
-        });
+        // Use helper method for ingredient count
+        setupCharacterCounter(ingredientCount, ingredientField.textProperty(), ingredientLimit);
 
         ingredientField.setTextFormatter(new TextFormatter<String>(change -> {
             if (change.getControlNewText().length() <= ingredientLimit) {
@@ -395,6 +462,7 @@ public class Main extends Application {
         }));
 
         Button addIngredientButton = new Button("Add");
+        addIngredientButton.setStyle("-fx-background-color: " + BROWN_BUTTON + "; -fx-text-fill: " + BUTTON_TEXT + "; -fx-font-family: 'Georgia'; -fx-font-size: 14px;");
         addIngredientButton.setOnAction(e -> addIngredient());
         HBox ingredientBox = new HBox(10, ingredientField, addIngredientButton);
         grid.add(ingredientBox, 1, row);
@@ -414,43 +482,50 @@ public class Main extends Application {
             }
         });
 
-
-
         row++;
-        grid.add(new Label("Ingredient List:"), 0, row);
+        Label ingredientListLabel = new Label("Ingredient List:");
+        ingredientListLabel.setStyle(labelStyle);
+        ingredientListLabel.setTextFill(DARK_BROWN_COLOR);
+        grid.add(ingredientListLabel, 0, row);
+        
         ingredientListView = new ListView<>(ingredientsList);
         ingredientListView.setPrefHeight(400);
+        ingredientListView.setStyle("-fx-font-family: 'Georgia'; -fx-font-size: 14px;");
+
         grid.add(ingredientListView, 1, row);
 
         row++;
         Button removeIngredientButton = new Button("Remove Selected Ingredient");
+        removeIngredientButton.setStyle("-fx-background-color: " + BROWN_BUTTON + "; -fx-text-fill: " + BUTTON_TEXT + "; -fx-font-family: 'Georgia'; -fx-font-size: 14px;");
         removeIngredientButton.setOnAction(e -> removeIngredient());
         grid.add(removeIngredientButton, 1, row);
 
+        row++;
+        Separator separator2 = new Separator();
+        grid.add(separator2, 0, row, 2, 1);
 
         row++;
-        grid.add(new Separator(), 0, row, 2, 1);
+        Label instructionsHeaderLabel = new Label("Cooking Instructions");
+        instructionsHeaderLabel.setStyle(labelStyle + "-fx-font-weight: bold; -fx-font-size: 16px;");
+        instructionsHeaderLabel.setTextFill(DARK_BROWN_COLOR);
+        grid.add(instructionsHeaderLabel, 0, row, 2, 1);
 
         row++;
-        grid.add(new Label("Cooking Instructions"), 0, row, 2, 1);
-
-        row++;
-        grid.add(new Label("Add Instruction:"), 0, row);
+        Label addInstructionLabel = new Label("Add Instruction:");
+        addInstructionLabel.setStyle(labelStyle);
+        addInstructionLabel.setTextFill(DARK_BROWN_COLOR);
+        grid.add(addInstructionLabel, 0, row);
+        
         instructionField = new TextField();
+        instructionField.setStyle(textFieldStyle);
+        instructionField.setStyle("-fx-text-fill: " + BROWN_DARK + ";");
+        
         instructionCount = new Label("0/" + instructionLimit);
+        instructionCount.setStyle(labelStyle);
+        instructionCount.setTextFill(DARK_BROWN_COLOR);
 
-        // Bind the text content
-        instructionCount.textProperty().bind(Bindings.createStringBinding(() -> {
-            int length = instructionField.getText().length();
-            return length + "/" + instructionLimit;
-
-        }, instructionField.textProperty()));
-
-        // Add a listener to update the color if instructionField character limit reached
-        instructionField.textProperty().addListener((obs, oldText, newText) -> {
-            int length = newText.length();
-            instructionCount.setTextFill(length == instructionLimit ? Color.RED : Color.GRAY);
-        });
+        // Use helper method for instruction count
+        setupCharacterCounter(instructionCount, instructionField.textProperty(), instructionLimit);
 
         instructionField.setTextFormatter(new TextFormatter<String>(change -> {
             if (change.getControlNewText().length() <= instructionLimit) {
@@ -463,9 +538,12 @@ public class Main extends Application {
         instructionField.textProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal.length() > 100) instructionField.setText(oldVal);
         });
+        
         Button addInstructionButton = new Button("Add");
+        addInstructionButton.setStyle("-fx-background-color: " + BROWN_BUTTON + "; -fx-text-fill: " + BUTTON_TEXT + "; -fx-font-family: 'Georgia'; -fx-font-size: 14px;");
         addInstructionButton.setOnAction(e -> {
             addInstruction();
+            statusLabel = new Label("");
             GridPane.setRowIndex(statusLabel, GridPane.getRowIndex(instructionListView) - 1);
         });
 
@@ -488,40 +566,44 @@ public class Main extends Application {
         grid.add(instructionCount, 2, row);
 
         row++;
-        grid.add(new Label("Instruction List:"), 0, row);
+        Label instructionListLabel = new Label("Instruction List:");
+        instructionListLabel.setStyle(labelStyle);
+        instructionListLabel.setTextFill(DARK_BROWN_COLOR);
+        grid.add(instructionListLabel, 0, row);
+        
         instructionListView = new ListView<>(instructionsList);
         instructionListView.setPrefHeight(400);
-
+        instructionListView.setStyle("-fx-font-family: 'Georgia'; -fx-font-size: 14px;");
         grid.add(instructionListView, 1, row);
 
         row++;
         Button removeInstructionButton = new Button("Remove Selected Instruction");
+        removeInstructionButton.setStyle("-fx-background-color: " + BROWN_BUTTON + "; -fx-text-fill: " + BUTTON_TEXT + "; -fx-font-family: 'Georgia'; -fx-font-size: 14px;");
         removeInstructionButton.setOnAction(e -> removeInstruction());
         grid.add(removeInstructionButton, 1, row);
 
         row++;
-        grid.add(new Separator(), 0, row, 2, 1);
+        Separator separator3 = new Separator();
+        grid.add(separator3, 0, row, 2, 1);
 
         row++;
-        grid.add(new Label("Notes/Tips"), 0, row, 2, 1);
+        Label notesHeaderLabel = new Label("Notes/Tips");
+        notesHeaderLabel.setStyle(labelStyle + "-fx-font-weight: bold; -fx-font-size: 16px;");
+        notesHeaderLabel.setTextFill(DARK_BROWN_COLOR);
+        grid.add(notesHeaderLabel, 0, row, 2, 1);
 
         row++;
         notesArea = new TextArea();
+        notesArea.setStyle("-fx-font-family: 'Georgia'; -fx-font-size: 14px;");
+        notesArea.setStyle("-fx-text-fill: " + BROWN_DARK + ";");
+        
         notesCount = new Label("0/" + notesLimit);
+        notesCount.setStyle(labelStyle);
+        notesCount.setTextFill(DARK_BROWN_COLOR);
         notesArea.setPrefHeight(400);
 
-        // Bind the text content
-        notesCount.textProperty().bind(Bindings.createStringBinding(() -> {
-            int length = notesArea.getText().length();
-            return length + "/" + notesLimit;
-
-        }, notesArea.textProperty()));
-
-        // Add a listener to update the color if ingredientField character limit reached
-        notesArea.textProperty().addListener((obs, oldText, newText) -> {
-            int length = newText.length();
-            notesCount.setTextFill(length == notesLimit ? Color.RED : Color.GRAY);
-        });
+        // Use helper method for notes count
+        setupCharacterCounter(notesCount, notesArea.textProperty(), notesLimit);
 
         notesArea.setTextFormatter(new TextFormatter<String>(change -> {
             if (change.getControlNewText().length() <= notesLimit) {
@@ -542,21 +624,33 @@ public class Main extends Application {
         HBox box = new HBox(10);
         box.setAlignment(Pos.CENTER_RIGHT);
         box.setPadding(new Insets(20, 0, 0, 0));
+        box.setStyle("-fx-background-color: " + CREAM_BACKGROUND + ";");
+
+        String buttonStyle = "-fx-background-color: " + BROWN_BUTTON + "; " +
+                            "-fx-text-fill: " + BUTTON_TEXT + "; " +
+                            "-fx-font-family: 'Georgia'; " +
+                            "-fx-font-size: 14px; " +
+                            "-fx-padding: 5 15 5 15;";
 
         Button save = new Button("Save");
+        save.setStyle(buttonStyle);
 
-        //Save user input to pdf if all fields are field or selected besides notes.
+        //Save user input to pdf if all fields are field or selected besides notes
         save.setOnAction(e -> {
             if(validateFields())
             {
                 saveRecipeToPDF();
             }
-
         });
+        
         Button reset = new Button("Reset");
+        reset.setStyle(buttonStyle);
         reset.setOnAction(e -> resetForm());
+        
         Button close = new Button("Close");
+        close.setStyle(buttonStyle);
         close.setOnAction(e -> stage.close());
+        
         box.getChildren().addAll(save, reset, close);
         return box;
     }
@@ -615,7 +709,9 @@ public class Main extends Application {
         } else {
             showMessageDialog("Ingredient already in the list or empty");
         }
-        statusLabel.setText("Ingredient already in the list or empty");
+        statusLabel = new Label("Ingredient already in the list or empty");
+        statusLabel.setStyle("-fx-font-family: 'Georgia';");
+        statusLabel.setTextFill(DARK_BROWN_COLOR);
     }
 
     // Removes the selected ingredient from the list
@@ -642,7 +738,9 @@ public class Main extends Application {
         } else {
             showMessageDialog("Instruction already in the list or empty");
         }
-        statusLabel.setText("Instruction already in the list or empty");
+        statusLabel = new Label("Instruction already in the list or empty");
+        statusLabel.setStyle("-fx-font-family: 'Georgia';");
+        statusLabel.setTextFill(DARK_BROWN_COLOR);
     }
 
     // Removes the selected instruction from the list
@@ -662,7 +760,50 @@ public class Main extends Application {
         alert.setTitle("Recipe Vault");
         alert.setHeaderText(null);
         alert.setContentText(message);
+        
+        // Apply styling to the dialog
+        DialogPane dialogPane = alert.getDialogPane();
+        dialogPane.setStyle("-fx-background-color: " + CREAM_BACKGROUND + "; -fx-font-family: 'Georgia';");
+        
+        // Style the content text with dark brown
+        Label contentLabel = (Label) dialogPane.lookup(".content.label");
+        if (contentLabel != null) {
+            contentLabel.setTextFill(DARK_BROWN_COLOR);
+        }
+        
+        // Find all buttons in the dialog and style them
+        dialogPane.lookupAll(".button").forEach(node -> {
+            ((Button) node).setStyle("-fx-background-color: " + BROWN_BUTTON + "; -fx-text-fill: " + BUTTON_TEXT + "; -fx-font-family: 'Georgia'; -fx-font-size: 14px;");
+        });
+        
         alert.showAndWait();
+    }
+    
+    /**
+     * Helper method to set up a character counter with proper styling
+     * @param countLabel The label that will display the character count
+     * @param textProperty The text property to bind to for counting
+     * @param limit The character limit
+     */
+    private void setupCharacterCounter(Label countLabel, javafx.beans.property.StringProperty textProperty, int limit) {
+        // Initial styling
+        countLabel.setStyle(
+            "-fx-background-color: " + BROWN_LIGHT + ";" +
+            "-fx-padding: 2 8 2 8;" +
+            "-fx-background-radius: 10;" +
+            "-fx-font-family: 'Georgia';" +
+            "-fx-font-size: 11px;"
+        );
+        
+        // Set text color directly
+        countLabel.setTextFill(DARK_BROWN_COLOR);
+        
+        // Bind text content
+        countLabel.textProperty().bind(Bindings.createStringBinding(() -> {
+            int length = textProperty.getValue().length();
+            return length + "/" + limit;
+        }, textProperty));
+        
     }
 
     private void saveRecipeToPDF() {
